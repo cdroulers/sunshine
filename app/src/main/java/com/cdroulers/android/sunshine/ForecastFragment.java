@@ -1,6 +1,7 @@
 package com.cdroulers.android.sunshine;
 
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -44,7 +45,7 @@ public class ForecastFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_refresh) {
-            new FetchWeatherTask().execute("http://api.openweathermap.org/data/2.5/forecast/daily?q=Lévis,QC,CA&mode=json&units=metric&cnt=7");
+            new FetchWeatherTask().execute("Lévis,QC,CA");
             return true;
         }
 
@@ -70,8 +71,6 @@ public class ForecastFragment extends Fragment {
 
         forecastListView.setAdapter(forecastsAdapter);
 
-        //new FetchWeatherTask().execute("http://api.openweathermap.org/data/2.5/forecast/daily?q=Lévis,QC,CA&mode=json&units=metric&cnt=7");
-
         return rootView;
     }
 
@@ -90,10 +89,19 @@ public class ForecastFragment extends Fragment {
             String forecastJsonStr = null;
 
             try {
+                //"http://api.openweathermap.org/data/2.5/forecast/daily?q=Lévis,QC,CA&mode=json&units=metric&cnt=7"
+                Uri builtUri = Uri.parse("http://api.openweathermap.org/data/2.5/forecast/daily").buildUpon()
+                        .appendQueryParameter("q", params[0])
+                        .appendQueryParameter("mode", "json")
+                        .appendQueryParameter("units", "metric")
+                        .appendQueryParameter("cnt", "7")
+                        .build();
+
+                Log.v(LogTag, "Build URI: " + builtUri);
                 // Construct the URL for the OpenWeatherMap query
                 // Possible parameters are avaiable at OWM's forecast API page, at
                 // http://openweathermap.org/API#forecast
-                URL url = new URL(params[0]);
+                URL url = new URL(builtUri.toString());
 
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -140,7 +148,7 @@ public class ForecastFragment extends Fragment {
                 }
             }
 
-            Log.d(LogTag, forecastJsonStr);
+            Log.v(LogTag, forecastJsonStr);
             return forecastJsonStr;
         }
     }
