@@ -1,21 +1,24 @@
 package com.cdroulers.android.sunshine;
 
-
-import android.annotation.TargetApi;
+import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,6 +49,12 @@ public class ForecastFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_forecast, menu);
     }
@@ -53,11 +62,19 @@ public class ForecastFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_refresh) {
-            new FetchWeatherTask().execute("Lévis,QC,CA");
+            updateWeather();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void updateWeather() {
+        String location = PreferenceManager.getDefaultSharedPreferences(getActivity())
+            .getString(
+                    getString(R.string.pref_location_key),
+                    getString(R.string.pref_location_default));
+        new FetchWeatherTask().execute(location);
     }
 
     @Override
@@ -71,6 +88,16 @@ public class ForecastFragment extends Fragment {
         ListView forecastListView = (ListView) rootView.findViewById(R.id.listview_forecast);
 
         forecastListView.setAdapter(forecastsAdapter);
+
+        forecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String forecast = forecastsAdapter.getItem(position);
+                Intent detailsIntent = new Intent(getActivity(), DetailsActivity.class);
+                detailsIntent.putExtra(Intent.EXTRA_TEXT, forecast);
+                startActivity(detailsIntent);
+            }
+        });
 
         return rootView;
     }
