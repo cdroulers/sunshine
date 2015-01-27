@@ -2,6 +2,7 @@ package com.cdroulers.android.sunshine;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -70,11 +71,16 @@ public class ForecastFragment extends Fragment {
     }
 
     private void updateWeather() {
-        String location = PreferenceManager.getDefaultSharedPreferences(getActivity())
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String location = preferences
             .getString(
                     getString(R.string.pref_location_key),
                     getString(R.string.pref_location_default));
-        new FetchWeatherTask().execute(location);
+        String units = preferences
+                .getString(
+                        getString(R.string.pref_units_key),
+                        getString(R.string.pref_units_default));
+        new FetchWeatherTask().execute(location, units);
     }
 
     @Override
@@ -120,6 +126,8 @@ public class ForecastFragment extends Fragment {
 
         @Override
         public String[] doInBackground(String... params) {
+            String location = params[0];
+            String units = params[1];
             int numberOfDays = 7;
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
@@ -132,7 +140,7 @@ public class ForecastFragment extends Fragment {
             try {
                 //"http://api.openweathermap.org/data/2.5/forecast/daily?q=Lévis,QC,CA&mode=json&units=metric&cnt=7"
                 Uri builtUri = Uri.parse("http://api.openweathermap.org/data/2.5/forecast/daily").buildUpon()
-                        .appendQueryParameter("q", params[0])
+                        .appendQueryParameter("q", location)
                         .appendQueryParameter("mode", "json")
                         .appendQueryParameter("units", "metric")
                         .appendQueryParameter("cnt", Integer.toString(numberOfDays))
@@ -189,7 +197,7 @@ public class ForecastFragment extends Fragment {
             }
 
             try {
-                return getWeatherDataFromJson(forecastJsonStr, numberOfDays);
+                return getWeatherDataFromJson(forecastJsonStr, numberOfDays, units);
             } catch (JSONException e) {
                 Log.e(LogTag, e.getMessage(), e);
                 e.printStackTrace();
@@ -228,7 +236,7 @@ public class ForecastFragment extends Fragment {
          * Fortunately parsing is easy:  constructor takes the JSON string and converts it
          * into an Object hierarchy for us.
          */
-        private String[] getWeatherDataFromJson(String forecastJsonStr, int numDays)
+        private String[] getWeatherDataFromJson(String forecastJsonStr, int numDays, String units)
                 throws JSONException {
 
             // These are the names of the JSON objects that need to be extracted.
@@ -269,11 +277,20 @@ public class ForecastFragment extends Fragment {
                 double high = temperatureObject.getDouble(OWM_MAX);
                 double low = temperatureObject.getDouble(OWM_MIN);
 
+                if ("imperial".equals(units)) {
+                    high = toFahrenheit(high);
+                    low = toFahrenheit(low);
+                }
+
                 highAndLow = formatHighLows(high, low);
                 resultStrs[i] = day + " - " + description + " - " + highAndLow;
             }
 
             return resultStrs;
+        }
+
+        private double toFahrenheit(double celcius) {
+            return celcius * 9 / 5 + 32;
         }
     }
 }
