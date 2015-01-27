@@ -21,6 +21,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.cdroulers.android.sunshine.settings.SettingsManager;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -72,14 +74,8 @@ public class ForecastFragment extends Fragment {
 
     private void updateWeather() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String location = preferences
-            .getString(
-                    getString(R.string.pref_location_key),
-                    getString(R.string.pref_location_default));
-        String units = preferences
-                .getString(
-                        getString(R.string.pref_units_key),
-                        getString(R.string.pref_units_default));
+        String location = SettingsManager.getLocation(getActivity());
+        String units = SettingsManager.getUnits(getActivity());
         new FetchWeatherTask().execute(location, units);
     }
 

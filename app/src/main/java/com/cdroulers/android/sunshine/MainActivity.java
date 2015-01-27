@@ -1,13 +1,18 @@
 package com.cdroulers.android.sunshine;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.cdroulers.android.sunshine.settings.SettingsManager;
+
 public class MainActivity extends ActionBarActivity {
     public static final String LogTag = "com.cdroulers.android.sunshine";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,8 +42,19 @@ public class MainActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            Intent detailsIntent = new Intent(this, SettingsActivity.class);
-            startActivity(detailsIntent);
+            Intent settingsIntent = new Intent(this, SettingsActivity.class);
+            startActivity(settingsIntent);
+            return true;
+        }
+        if (id == R.id.action_map) {
+            Intent mapIntent = new Intent(Intent.ACTION_VIEW);
+            String location = SettingsManager.getLocation(this);
+            mapIntent.setData(Uri.parse("geo:0,0?q=" + location));
+            if (mapIntent.resolveActivity(getPackageManager()) != null) {
+                startActivity(mapIntent);
+            } else {
+                Log.d(LogTag, "No app to manage maps!");
+            }
             return true;
         }
 
