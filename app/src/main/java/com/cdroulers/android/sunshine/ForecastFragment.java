@@ -117,6 +117,8 @@ public class ForecastFragment extends Fragment {
                 for (String result : results) {
                     forecastsAdapter.add(result);
                 }
+            } else {
+                Toast.makeText(getActivity(), getString(R.string.fetch_weather_error), Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -194,7 +196,7 @@ public class ForecastFragment extends Fragment {
 
             try {
                 return getWeatherDataFromJson(forecastJsonStr, numberOfDays, units);
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 Log.e(LogTag, e.getMessage(), e);
                 e.printStackTrace();
             }
@@ -233,7 +235,7 @@ public class ForecastFragment extends Fragment {
          * into an Object hierarchy for us.
          */
         private String[] getWeatherDataFromJson(String forecastJsonStr, int numDays, String units)
-                throws JSONException {
+                throws Exception {
 
             // These are the names of the JSON objects that need to be extracted.
             final String OWM_LIST = "list";
@@ -245,6 +247,10 @@ public class ForecastFragment extends Fragment {
             final String OWM_DESCRIPTION = "main";
 
             JSONObject forecastJson = new JSONObject(forecastJsonStr);
+            if (!forecastJson.getString("cod").equals("200")) {
+                throw new Exception("The weather API didn't return a 200 code.");
+            }
+
             JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
 
             String[] resultStrs = new String[numDays];

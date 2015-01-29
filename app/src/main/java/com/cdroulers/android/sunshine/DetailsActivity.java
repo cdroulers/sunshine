@@ -4,9 +4,9 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,7 +14,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.os.Build;
-import android.widget.ShareActionProvider;
 import android.widget.TextView;
 
 
@@ -73,9 +72,9 @@ public class DetailsActivity extends ActionBarActivity {
         public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
             inflater.inflate(R.menu.menu_details_fragment, menu);
 
-            ShareActionProvider shareActionProvider = (ShareActionProvider) menu.findItem(R.id.action_share).getActionProvider();
+            ShareActionProvider shareActionProvider = (ShareActionProvider)MenuItemCompat.getActionProvider(menu.findItem(R.id.action_share));
 
-            shareActionProvider.setShareIntent(getDefaultShareIntent());
+            shareActionProvider.setShareIntent(getShareForecastIntent());
         }
 
         @Override
@@ -91,7 +90,7 @@ public class DetailsActivity extends ActionBarActivity {
             return rootView;
         }
 
-        private Intent getDefaultShareIntent() {
+        private Intent getShareForecastIntent() {
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
             shareIntent.setType("text/plain");
