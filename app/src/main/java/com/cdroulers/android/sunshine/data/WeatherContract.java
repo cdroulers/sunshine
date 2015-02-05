@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.sunshine.app.data;
+package com.cdroulers.android.sunshine.data;
 
 import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -31,13 +32,7 @@ public class WeatherContract {
     // relationship between a domain name and its website.  A convenient string to use for the
     // content authority is the package name for the app, which is guaranteed to be unique on the
     // device.
-    /* TODO Uncomment for
-    4b - Adding ContentProvider to our Contract
-    https://www.udacity.com/course/viewer#!/c-ud853/l-1576308909/m-1637521471
-    public static final String CONTENT_AUTHORITY = "com.example.android.sunshine.app";
-
-    // Use CONTENT_AUTHORITY to create the base of all URI's which apps will use to contact
-    // the content provider.
+    public static final String CONTENT_AUTHORITY = "com.cdroulers.android.sunshine";
 
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
@@ -49,7 +44,6 @@ public class WeatherContract {
 
     public static final String PATH_WEATHER = "weather";
     public static final String PATH_LOCATION = "location";
-    */
 
     /* TODO Uncomment for
     4b - Finishing the FetchWeatherTask
@@ -78,6 +72,7 @@ public class WeatherContract {
 
     /**
      * Converts a dateText to a long Unix time representation
+     *
      * @param dateText the input date string
      * @return the Date object
      */
@@ -96,37 +91,26 @@ public class WeatherContract {
     */
 
     public static final class LocationEntry implements BaseColumns {
-        /**
-         * TODO YOUR CODE BELOW HERE FOR QUIZ
-         * QUIZ - 4a - Columns
-         * https://www.udacity.com/course/viewer#!/c-ud853/l-1639338560/e-1633698595/m-1633698597
-         **/
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_LOCATION).build();
 
-        /* TODO Uncomment for
-        4b - Adding ContentProvider to our Contract
-        https://www.udacity.com/course/viewer#!/c-ud853/l-1576308909/m-1637521471
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/" + CONTENT_AUTHORITY + "/" + PATH_LOCATION;
+        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/" + CONTENT_AUTHORITY + "/" + PATH_LOCATION;
 
-        public static final Uri CONTENT_URI =
-                BASE_CONTENT_URI.buildUpon().appendPath(PATH_LOCATION).build();
+        public static final String TABLE_NAME = "locations";
 
-        public static final String CONTENT_TYPE =
-                "vnd.android.cursor.dir/" + CONTENT_AUTHORITY + "/" + PATH_LOCATION;
-        public static final String CONTENT_ITEM_TYPE =
-                "vnd.android.cursor.item/" + CONTENT_AUTHORITY + "/" + PATH_LOCATION;
-        */
+        public static final String COLUMN_LOCATION_SETTING = "setting";
+        public static final String COLUMN_CITY_NAME = "city_name";
+        public static final String COLUMN_COORD_LAT = "latitude";
+        public static final String COLUMN_COORD_LONG = "longitude";
 
-        /**
-         * TODO YOUR CODE BELOW HERE FOR QUIZ
-         * QUIZ - 4b - Adding LocationEntry with ID UriBuilder
-         * https://www.udacity.com/course/viewer#!/c-ud853/l-1576308909/e-1604969848/m-1604969849
-         **/
-
+        public static Uri buildLocationUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
     }
 
-/*
-/* Inner class that defines the table contents of the weather table */
+    /*
+    /* Inner class that defines the table contents of the weather table */
     public static final class WeatherEntry implements BaseColumns {
-
         public static final String TABLE_NAME = "weather";
 
         // Column with the foreign key into the location table.
@@ -156,16 +140,10 @@ public class WeatherContract {
         // Degrees are meteorological degrees (e.g, 0 is north, 180 is south).  Stored as floats.
         public static final String COLUMN_DEGREES = "degrees";
 
-        /* TODO Uncomment for
-        4b - Adding ContentProvider to our Contract
-        https://www.udacity.com/course/viewer#!/c-ud853/l-1576308909/m-1637521471
-        public static final Uri CONTENT_URI =
-                BASE_CONTENT_URI.buildUpon().appendPath(PATH_WEATHER).build();
+        public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_WEATHER).build();
 
-        public static final String CONTENT_TYPE =
-                "vnd.android.cursor.dir/" + CONTENT_AUTHORITY + "/" + PATH_WEATHER;
-        public static final String CONTENT_ITEM_TYPE =
-                "vnd.android.cursor.item/" + CONTENT_AUTHORITY + "/" + PATH_WEATHER;
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/" + CONTENT_AUTHORITY + "/" + PATH_WEATHER;
+        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/" + CONTENT_AUTHORITY + "/" + PATH_WEATHER;
 
         public static Uri buildWeatherUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
@@ -195,6 +173,6 @@ public class WeatherContract {
 
         public static String getStartDateFromUri(Uri uri) {
             return uri.getQueryParameter(COLUMN_DATETEXT);
-        }*/
+        }
     }
 }
