@@ -269,14 +269,29 @@ public class WeatherProvider extends ContentProvider {
     }
 
     @Override
-    public int update(
-            Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        /**
-         * TODO YOUR CODE BELOW HERE FOR QUIZ
-         * QUIZ - 4b - Updating and Deleting
-         * https://www.udacity.com/course/viewer#!/c-ud853/l-1576308909/e-1675098563/m-1675098564
-         **/
-        return 0;
+    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int rowsAffected;
+
+        switch (match) {
+            case WEATHER: {
+                rowsAffected = db.update(WeatherContract.WeatherEntry.TABLE_NAME, values, selection, selectionArgs);
+                if (rowsAffected <= 0)
+                    throw new android.database.SQLException("Failed to update row " + uri);
+                break;
+            }
+            case LOCATION: {
+                rowsAffected = db.update(WeatherContract.LocationEntry.TABLE_NAME, values, selection, selectionArgs);
+                if (rowsAffected <= 0)
+                    throw new android.database.SQLException("Failed to update row " + uri);
+                break;
+            }
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+        return rowsAffected;
     }
 
     @Override
